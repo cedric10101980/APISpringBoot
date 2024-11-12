@@ -1,0 +1,22 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: outbound-local-ca
+  namespace: outbound
+spec:
+  isCA: true
+  commonName: agent-assist
+  secretName: outbound-local-ca-cert
+  #duration: 360h
+  #renewBefore: 30h
+  duration: 2160h
+  renewBefore: 240h
+  privateKey:
+    #algorithm: ECDSA
+    #size: 256
+    algorithm: RSA
+    size: 4096
+  issuerRef:
+    name: aa-ssi
+    kind: ClusterIssuer
+    group: cert-manager.io

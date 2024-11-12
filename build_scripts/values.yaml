@@ -1,0 +1,149 @@
+# Default values for apichart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+namespace: outbound
+
+replicaCount: 1
+
+image:
+  repository: agentassiststg1.azurecr.io/outbound/ai-info-api-app
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "master"
+  pullSecrets:
+    - acr-auth
+
+istio:
+  gateway:
+    name: ai-gateway
+    host: "*"
+  virtualService:
+    name: ai-virtual-service
+    host: "*"
+    path: "/outbound-ai-api/"
+
+query:
+  url: http://outbound-aillmprocessor:5000
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  name: outbound-ai-api
+  type: ClusterIP
+  httpsPort: 443
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/proxy-ssl-name: outbound-aillm-api-apichart
+    nginx.ingress.kubernetes.io/proxy-ssl-secret: outbound/outbound-ai-api-cert
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_accountId"
+
+  hosts:
+    - host: "outbound.cloud.com"
+      paths:
+        - path: /api/
+          pathType: Prefix
+        - path: /openapi/
+          pathType: Prefix
+        - path: /webjars/
+          pathType: Prefix
+        - path: /v3/api-docs
+          pathType: Prefix
+        - path: /health
+          pathType: Prefix
+  tls:
+    - secretName: agent-assist-public-id-cert
+      hosts:
+        - "outbound.cloud.com"
+
+resources: 
+  requests:
+    cpu: "1"
+    memory: "1Gi"
+  limits:
+    cpu: "1.25"
+    memory: "1.25Gi"
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+serviceCertName: outbound-ai-api-certificate
+serviceCertSecretName: outbound-ai-api-secret
+serviceDuration: 8760h
+serviceRenewBefore: 360h
+serviceOrganizations: Outbound
+serviceCommonName: outbound-ai-api
+serviceIsCA: false
+serviceKeyAlgorithm: RSA
+serviceKeyEncoding: PKCS1
+serviceKeySize: 2048
+dnsNames:
+  serviceK8sName: outbound-ai-api
+  serviceK8sNameSpace: outbound-pom
+  servicePubFQDN: campaigns-api.avaya-obaas.com
+local_k8s_enabled: false
+subCAClusterName: issuing-ca-clusterissuer
+
+

@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+    volumes:
+      - mongodb_data_container:/data/db
+    ports:
+      - 27017:27017
+  app:
+    image: ai-info-api-app:master
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:mongo@*****27017/mongodb_container?authSource=admin
+      - OPENAI_API_KEY=sk-t6A2q*****IYATw5Wp5hO
+      - SECURITY_SECRET_KEY=aHR***0NC8=
+    depends_on:
+      - mongodb
+    volumes:
+      - uploads_volume:/app/uploads
+    ports:
+      - "8444:8444"
+volumes:
+  mongodb_data_container:
+  uploads_volume:

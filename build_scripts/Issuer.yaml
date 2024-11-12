@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: outbound-ca-issuer
+  namespace: outbound
+spec:
+  ca:
+    secretName: outbound-local-ca-cert
+    #crlDistributionPoints:
+    #- "http://example.com"
+

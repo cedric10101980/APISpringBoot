@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: outbound-ai-api-cert
+  namespace: outbound
+spec:
+  commonName: outbound-ai-api
+  secretName: outbound-ai-api-cert
+  dnsNames: 
+    - outbound-ai-api
+    - outbound-ai-api.svc.cluster.local
+  privateKey:
+    algorithm: RSA
+    size: 4096
+    #algorithm: ECDSA
+    #size: 256
+  issuerRef:
+    name: outbound-ca-issuer
+    kind: Issuer
+    group: cert-manager.io

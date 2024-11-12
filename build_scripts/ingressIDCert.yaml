@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: agent-assist-public-id
+  namespace: outbound
+spec:
+  commonName: outbound.agentassist-stg.avayacloud.com
+  secretName: agent-assist-public-id-cert
+  dnsNames: 
+    - outbound.agentassist-stg.avayacloud.com
+  privateKey:
+    algorithm: RSA
+    size: 4096
+    #algorithm: ECDSA
+    #size: 256
+  issuerRef:
+    name: production-http-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

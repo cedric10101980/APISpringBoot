@@ -1,0 +1,70 @@
+# This is a GitHub Actions workflow for building and pushing a Docker image when a push to the "master" branch occurs.
+# The workflow is named "Build and Push Docker Image".
+name: Build and Push Docker Image
+
+# The workflow is triggered on a push event to the "master" branch.
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    # The job runs on the latest version of Ubuntu.
+    runs-on: ubuntu-latest
+    # The job has read permissions for the contents of the repository.
+    permissions:
+      contents: read
+
+    steps:
+      # The first step checks out the repository's code onto the runner.
+      - uses: actions/checkout@v4
+      # The next step sets up JDK 17.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # The workflow then sets up Gradle.
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+
+      # The project is built using the Gradle Wrapper.
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+      # After the build, a Docker image is built with the tag "ai-info-api-app".
+      - name: Docker build
+        run: docker build -t ai-info-api-app .
+
+      # The workflow logs into Azure Container Registry.
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: outboundacrcicd.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      # The Docker image is tagged with the name of the branch that triggered the workflow.
+      - name: Tag Docker Image
+        run: docker tag ai-info-api-app outboundacrcicd.azurecr.io/outbound/ai-info-api-app:${{ github.ref_name }}
+
+      # The Docker image is pushed to Azure ACR.
+      - name: Push Docker Image to Azure ACR
+        run: docker push outboundacrcicd.azurecr.io/outbound/ai-info-api-app:${{ github.ref_name }}
+
+      # The workflow logs into Azure Container Registry.
+      - name: Login to AA Azure Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: agentassiststg1.azurecr.io
+          username: ${{ secrets.AA_ACR_USER }}
+          password: ${{ secrets.AA_ACR_PASS }}
+
+      # The Docker image is tagged with the name of the branch that triggered the workflow.
+      - name: Tag AA Docker Image
+        run: docker tag ai-info-api-app agentassiststg1.azurecr.io/outbound/ai-info-api-app:${{ github.ref_name }}
+
+      # The Docker image is pushed to Azure ACR.
+      - name: Push AA Docker Image to Azure ACR
+        run: docker push agentassiststg1.azurecr.io/outbound/ai-info-api-app:${{ github.ref_name }}
