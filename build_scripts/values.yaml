@@ -3,13 +3,13 @@
 # Declare variables to be passed into your templates.
 namespace: outbound
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: agentassiststg1.azurecr.io/outbound/ai-info-api-app
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "master"
+  tag: "main"
   pullSecrets:
     - acr-auth
 
@@ -23,7 +23,7 @@ istio:
     path: "/outbound-ai-api/"
 
 query:
-  url: http://outbound-aillmprocessor:5000
+  url: http://aillmconnector-aillmprocessor:5000
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -63,12 +63,12 @@ ingress:
   className: "nginx"
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-    nginx.ingress.kubernetes.io/proxy-ssl-name: outbound-aillm-api-apichart
+    nginx.ingress.kubernetes.io/proxy-ssl-name: aiinfoapp-apichart
     nginx.ingress.kubernetes.io/proxy-ssl-secret: outbound/outbound-ai-api-cert
     nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_accountId"
 
   hosts:
-    - host: "outbound.cloud.com"
+    - host: "outbound.agentassist-stg.avayacloud.com"
       paths:
         - path: /api/
           pathType: Prefix
@@ -83,14 +83,14 @@ ingress:
   tls:
     - secretName: agent-assist-public-id-cert
       hosts:
-        - "outbound.cloud.com"
+        - "outbound.agentassist-stg.avayacloud.com"
 
 resources: 
   requests:
     cpu: "1"
     memory: "1Gi"
   limits:
-    cpu: "1.25"
+    cpu: "1.5"
     memory: "1.25Gi"
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little

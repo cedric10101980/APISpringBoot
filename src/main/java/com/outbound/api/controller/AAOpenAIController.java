@@ -89,7 +89,14 @@ public class AAOpenAIController {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The query and model to use", required = true, content = @Content(schema = @Schema(implementation = QueryModel.class)))
     public Mono<ResponseEntity<String>> query(@RequestBody Map<String, String> request) {
         String model = request.getOrDefault("model", "gpt-4-0125-preview"); // default model
-        return llmQueryService.query(request.get("query"), model);
+        logger.info("In Query Model selected: {}", model);
+        logger.info("Request parameters: promptId={}, campaignName={}, contactId={}", request.getOrDefault("query", ""));
+
+        return llmQueryService.query(request.get("query"), model)
+                .doOnSubscribe(subscription -> logger.info("Subscription started for Query"))
+                .doOnNext(response -> logger.info("Received response: {}", response))
+                .doOnError(error -> logger.error("Error occurred: ", error))
+                .doOnTerminate(() -> logger.info("Query prompt process terminated"));
     }
 
     @PostMapping("/queryPrompt")
@@ -106,7 +113,14 @@ public class AAOpenAIController {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The query and model to use", required = true, content = @Content(schema = @Schema(implementation = PromptModel.class)))
     public Mono<ResponseEntity<String>> queryPrompt(@RequestBody Map<String, String> request) {
         String model = request.getOrDefault("model", "gpt-4-0125-preview"); // default model
-        return llmQueryService.queryPrompt(request.get("promptId"), request.get("campaignName"), request.get("contactId"), model);
+        logger.info("In Query Prompt Model selected: {}", model);
+        logger.info("Request parameters: promptId={}, campaignName={}, contactId={}", request.get("promptId"), request.get("campaignName"), request.get("contactId"));
+
+        return llmQueryService.queryPrompt(request.get("promptId"), request.get("campaignName"), request.get("contactId"), model)
+                .doOnSubscribe(subscription -> logger.info("Subscription started"))
+                .doOnNext(response -> logger.info("Received response: {}", response))
+                .doOnError(error -> logger.error("Error occurred: ", error))
+                .doOnTerminate(() -> logger.info("Query prompt process terminated"));
     }
 
     @Hidden

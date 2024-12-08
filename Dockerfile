@@ -16,8 +16,8 @@ ARG JAR_FILE=build/libs/AIImageProcessor-1.0.0.jar
 # Add the application's jar to the container
 ADD ${JAR_FILE} app.jar
 
-COPY zscaler.cer $JAVA_HOME/lib/security/
-RUN cd $JAVA_HOME/lib/security/ && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias zscaler -file zscaler.cer
+#COPY zscaler.cer $JAVA_HOME/lib/security/
+#RUN cd $JAVA_HOME/lib/security/ && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias zscaler -file zscaler.cer
 
 # Copy public and static folders
 COPY src/main/resources/public /resources/public
