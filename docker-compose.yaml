@@ -14,7 +14,7 @@ services:
   app:
     image: ai-info-api-app:master
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://mongo:mongo@*****27017/mongodb_container?authSource=admin
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:mon**@*****27017/mongodb_container?authSource=admin
       - OPENAI_API_KEY=sk-t6A2q*****IYATw5Wp5hO
       - SECURITY_SECRET_KEY=aHR***0NC8=
     depends_on:
