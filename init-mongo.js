@@ -1,7 +1,7 @@
 db = db.getSiblingDB('mongodb_container');
 db.createUser({
   user: "mongo",
-  pwd: "mon**",
+  pwd: "****",
   roles: [
     { role: "readWrite", db: "mongodb_container" }
   ]
